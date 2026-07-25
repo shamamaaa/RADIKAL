@@ -92,36 +92,45 @@ export async function submitLetter(
 ): Promise<void> {
   markSent(memberId);
 
-  if (!supabase) {
-    saveLocalLetter({
-      id: crypto.randomUUID(),
-      member_id: memberId,
-      sender_name: senderName,
-      message,
-      created_at: new Date().toISOString(),
-    });
-    return;
-  }
+  saveLocalLetter({
+    id: crypto.randomUUID(),
+    member_id: memberId,
+    sender_name: senderName,
+    message,
+    created_at: new Date().toISOString(),
+  });
 
-  await supabase
-    .from("letters")
-    .insert({ member_id: memberId, sender_name: senderName, message });
+  if (!supabase) return;
+
+  try {
+    await supabase
+      .from("letters")
+      .insert({ member_id: memberId, sender_name: senderName, message });
+  } catch (e) {
+    console.warn("Supabase letter submission error:", e);
+  }
 }
 
 export async function fetchLetters(): Promise<LetterRow[]> {
   let userLetters: LetterRow[] = [];
 
-  if (!supabase) {
-    userLetters = getLocalLetters();
-  } else {
-    const { data, error } = await supabase
-      .from("letters")
-      .select("id, member_id, sender_name, message, created_at")
-      .order("created_at", { ascending: false });
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("letters")
+        .select("id, member_id, sender_name, message, created_at")
+        .order("created_at", { ascending: false });
 
-    if (!error && data) {
-      userLetters = data;
+      if (!error && data && data.length > 0) {
+        userLetters = data;
+      } else {
+        userLetters = getLocalLetters();
+      }
+    } catch {
+      userLetters = getLocalLetters();
     }
+  } else {
+    userLetters = getLocalLetters();
   }
 
   return [...creatorLetters, ...userLetters];

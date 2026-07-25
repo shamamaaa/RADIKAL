@@ -55,38 +55,56 @@ export async function submitScore(
 ): Promise<void> {
   savePlayerName(playerName);
 
-  if (!supabase) {
-    saveLocalScore(gameId, {
-      id: crypto.randomUUID(),
-      player_name: playerName,
-      score,
-      created_at: new Date().toISOString(),
-    });
-    return;
-  }
-
-  await supabase.rpc("submit_score", {
-    p_game_id: gameId,
-    p_player_name: playerName,
-    p_score: score,
+  // Always save locally first for instant feedback
+  saveLocalScore(gameId, {
+    id: crypto.randomUUID(),
+    player_name: playerName,
+    score,
+    created_at: new Date().toISOString(),
   });
+
+  if (!supabase) return;
+
+  try {
+    const { error: rpcErr } = await supabase.rpc("submit_score", {
+      p_game_id: gameId,
+      p_player_name: playerName,
+      p_score: score,
+    });
+
+    if (rpcErr) {
+      await supabase.from("scores").insert({
+        game_id: gameId,
+        player_name: playerName,
+        score,
+      });
+    }
+  } catch (e) {
+    console.warn("Supabase score submission error:", e);
+  }
 }
 
 export async function fetchTopScores(
   gameId: string,
   limit = 10
 ): Promise<ScoreRow[]> {
-  if (!supabase) {
-    return getLocalScores(gameId).slice(0, limit);
+  const local = getLocalScores(gameId).slice(0, limit);
+
+  if (!supabase) return local;
+
+  try {
+    const { data, error } = await supabase
+      .from("scores")
+      .select("id, player_name, score, created_at")
+      .eq("game_id", gameId)
+      .order("score", { ascending: false })
+      .limit(limit);
+
+    if (error || !data || data.length === 0) {
+      return local;
+    }
+    return data;
+  } catch {
+    return local;
   }
-
-  const { data, error } = await supabase
-    .from("scores")
-    .select("id, player_name, score, created_at")
-    .eq("game_id", gameId)
-    .order("score", { ascending: false })
-    .limit(limit);
-
-  if (error || !data) return [];
-  return data;
 }
