@@ -1,0 +1,14 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#f4f5f7"/>
+  <g transform="translate(200 130)" opacity="0.5">
+    <path
+      d="M0 -55 L19 -20 L58 -20 L28 3 L38 38 L0 16 L-38 38 L-28 3 L-58 -20 L-19 -20 Z"
+      fill="#14161a"
+    />
+  </g>
+  <text x="200" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#8a8f98" dy="60">?</text>
+  <rect x="0" y="260" width="400" height="40" fill="#e6e8eb"/>
+  <text x="200" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#8a8f98" letter-spacing="2">
+    ÇOK YAKINDA
+  </text>
+</svg>
