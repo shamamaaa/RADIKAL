@@ -1,4 +1,4 @@
-# RADIKAL — İbrahim'in Doğum Günü
+# RADIKAL
 
 RADIKAL için Next.js, Tailwind ve Supabase ile hazırlanmış doğum günü kutlama sitesi.
 
@@ -43,5 +43,5 @@ Her oyun `src/components/games/` altında kendi klasöründe, sayfası ise
 
 `src/lib/brands.ts` içindeki ayran kutusu / Şalgam şişesi piksel sanatı, gerçek
 logolar yerine her üyenin favori markasından ilham alan özgün renk ve
-şekiller kullanır — nostaljiyi korurken tescilli markaları birebir
-kullanmamak için.
+şekiller kullanır. Böylece nostaljiyi korurken tescilli markaları birebir
+kullanmamış olur.
